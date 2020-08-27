@@ -216,7 +216,7 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- Annotation processor that adds Javadoc comments to executable .jar files.
+    <!-- Annotation processor that adds Javadoc comments to the .jar files.
          We do this to generate user documentation at runtime. Do not confuse
          with generating and packaging the static Javadocs. -->
     <dependency>
