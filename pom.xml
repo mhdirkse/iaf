@@ -215,6 +215,18 @@
     </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+    <!-- Annotation processor that adds Javadoc comments to executable .jar files.
+         We do this to generate user documentation at runtime. Do not confuse
+         with generating and packaging the static Javadocs. -->
+    <dependency>
+      <groupId>com.github.therapi</groupId>
+      <artifactId>therapi-runtime-javadoc-scribe</artifactId>
+      <version>0.11.0</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
   <build>
     <defaultGoal>install</defaultGoal>
     <plugins>
@@ -224,6 +236,11 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
+          <compilerArgs>
+            <arg>
+-Ajavadoc.packages=nl.nn.adapterframework.batch,nl.nn.adapterframework.cache,nl.nn.adapterframework.compression,nl.nn.adapterframework.configuration,nl.nn.adapterframework.core,nl.nn.adapterframework.extensions.afm,nl.nn.adapterframework.extensions.akamai,nl.nn.adapterframework.extensions.api,nl.nn.adapterframework.extensions.bis,nl.nn.adapterframework.extensions.cmis,nl.nn.adapterframework.extensions.esb,nl.nn.adapterframework.extensions.fxf,nl.nn.adapterframework.extensions.ibm,nl.nn.adapterframework.extensions.ifsa,nl.nn.adapterframework.extensions.mqtt,nl.nn.adapterframework.extensions.rekenbox,nl.nn.adapterframework.extensions.svn,nl.nn.adapterframework.extensions.tibco,nl.nn.adapterframework.extensions.xfb,nl.nn.adapterframework.filesystem,nl.nn.adapterframework.ftp,nl.nn.adapterframework.http,nl.nn.adapterframework.jdbc,nl.nn.adapterframework.jms,nl.nn.adapterframework.ldap,nl.nn.adapterframework.parameters,nl.nn.adapterframework.pipes,nl.nn.adapterframework.receivers,nl.nn.adapterframework.soap,nl.nn.adapterframework.scheduler,nl.nn.adapterframework.senders,nl.nn.adapterframework.util,nl.nn.adapterframework.xcom,nl.nn.ibistesttool
+            </arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>
