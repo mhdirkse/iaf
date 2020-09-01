@@ -46,6 +46,12 @@ import org.springframework.core.type.filter.RegexPatternTypeFilter;
 import org.springframework.util.Assert;
 import org.xml.sax.SAXException;
 
+import com.github.therapi.runtimejavadoc.ClassJavadoc;
+import com.github.therapi.runtimejavadoc.CommentFormatter;
+import com.github.therapi.runtimejavadoc.OtherJavadoc;
+import com.github.therapi.runtimejavadoc.RuntimeJavadoc;
+import com.github.therapi.runtimejavadoc.SeeAlsoJavadoc;
+
 import nl.nn.adapterframework.core.IPipe;
 import nl.nn.adapterframework.core.IPipeLineSession;
 import nl.nn.adapterframework.core.ParameterException;
@@ -166,6 +172,8 @@ public class IbisDocPipe extends FixedForwardPipe {
 	// Cache groups for better performance, don't use it directly, use getGroups()
 	private static Map<String, TreeSet<IbisBean>> cachedGroups;
 	private static Map<String, String> errors = new HashMap<String, String>();
+	// Comment from example on https://github.com/dnault/therapi-runtime-javadoc: formatters are reusable and thread-safe
+	private static final CommentFormatter commentFormatter = new CommentFormatter();
 
 	static synchronized Map<String, TreeSet<IbisBean>> getGroups() {
 		if (cachedGroups == null) {
@@ -842,7 +850,18 @@ public class IbisDocPipe extends FixedForwardPipe {
 		for (IbisBean ibisBean : getIbisBeans()) {
 			if (beanName.equals(ibisBean.getName())) {
 				StringBuffer result = new StringBuffer();
-				result.append(beanName);
+				result.append("<b>" + beanName + "</b>");
+				ClassJavadoc classDoc = RuntimeJavadoc.getJavadoc(ibisBean.getClazz());
+				if (!classDoc.isEmpty()) {
+					result.append("<br/>" + commentFormatter.format(classDoc.getComment()));
+					for (SeeAlsoJavadoc see : classDoc.getSeeAlso()) {
+						result.append("<br/>See also: " + see.getLink());
+					}
+					for (OtherJavadoc other : classDoc.getOther()) {
+						result.append("<br/>" + (other.getName() + ": " + commentFormatter.format(other.getComment())));
+					}
+				}
+				result.append("<br/>class name: " + ibisBean.getClazz().getName());
 				result.append("<table border='1'>");
 				result.append("<tr><th>class</th><th>attribute</th><th>description</th><th>default</th></tr>");
 				addPropertiesToSchemaOrHtml(ibisBean, null, result);
