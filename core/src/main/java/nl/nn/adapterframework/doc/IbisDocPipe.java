@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -279,6 +280,8 @@ public class IbisDocPipe extends FixedForwardPipe {
 				scanner.scan("nl.nn.adapterframework", "nl.nn.ibistesttool");
 				success = true;
 			} catch(BeanDefinitionStoreException e) {
+				// Exclude errors like class java.lang.NoClassDefFoundError: com/tibco/tibjms/admin/TibjmsAdminException
+				// for SendTibcoMessage. See menu item Errors in GUI.
 				String excludeFilter = e.getMessage();
 				excludeFilter = excludeFilter.substring(excludeFilter.indexOf(".jar!/") + 6);
 				excludeFilter = excludeFilter.substring(0, excludeFilter.indexOf(".class"));
@@ -665,10 +668,29 @@ public class IbisDocPipe extends FixedForwardPipe {
 					}
 					if (ibisDoc != null) {
 						String[] ibisDocValues = ibisDoc.value();
-						if (beanComplexType != null) {
-							String ibisDocValue = ibisDocValues[0];
+						// TODO order output based on class inheritance and order value
+						int order = Integer.MAX_VALUE;
+						String description;
+						String defaultValue = "";
+						try {
+							order = Integer.parseInt(ibisDocValues[0]);
+						} catch (NumberFormatException e) {
+						}
+						if (order == Integer.MAX_VALUE) {
+							description = ibisDocValues[0];
 							if (ibisDocValues.length > 1) {
-								ibisDocValue = ibisDocValue + " (default: " + ibisDocValues[1] + ")";
+								defaultValue = ibisDocValues[1];
+							}
+						} else {
+							description = ibisDocValues[1];
+							if (ibisDocValues.length > 2) {
+								defaultValue = ibisDocValues[2];
+							}
+						}
+						if (beanComplexType != null) {
+							String ibisDocValue = description;
+							if (StringUtils.isNotEmpty(defaultValue)) {
+								ibisDocValue = ibisDocValue + " (default: " + defaultValue + ")";
 							}
 							XmlBuilder annotation = new XmlBuilder("annotation");
 							XmlBuilder documentation = new XmlBuilder("documentation");
@@ -677,14 +699,8 @@ public class IbisDocPipe extends FixedForwardPipe {
 							documentation.setValue(ibisDocValue);
 						}
 						if (beanHtml != null) {
-							String ibisDocValue = ibisDocValues[0];
-							beanHtml.append("<td>" + ibisDocValue + "</td>");
-							if (ibisDocValues.length > 1) {
-								ibisDocValue = ibisDocValues[1];
-							} else {
-								ibisDocValue = "";
-							}
-							beanHtml.append("<td>" + ibisDocValue + "</td>");
+							beanHtml.append("<td>" + description + "</td>");
+							beanHtml.append("<td>" + defaultValue + "</td>");
 						}
 					} else {
 						if (beanHtml != null) {
@@ -780,7 +796,11 @@ public class IbisDocPipe extends FixedForwardPipe {
 				result.append("  <Element>\n");
 				result.append("    <Name>" + name + "</Name>\n");
 				result.append("    <Type>" + type + "</Type>\n");
-				result.append("    <ClassName>" + className + "</ClassName>\n");
+				if (StringUtils.isNotEmpty(className)) {
+					result.append("    <ClassName>" + className + "</ClassName>\n");
+				} else {
+					result.append("    <ClassName/>\n");
+				}
 				result.append("  </Element>\n");
 			}
 		}
