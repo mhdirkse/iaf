@@ -218,7 +218,11 @@
   <dependencies>
     <!-- Annotation processor that adds Javadoc comments to the .jar files.
          We do this to generate user documentation at runtime. Do not confuse
-         with generating and packaging the static Javadocs. -->
+         with generating and packaging the static Javadocs.
+
+         This dependency does not appear in <dependencyManagement>. If this were
+         the case, then every sub-project pom.xml would have to repeat this
+         dependency. -->
     <dependency>
       <groupId>com.github.therapi</groupId>
       <artifactId>therapi-runtime-javadoc-scribe</artifactId>
