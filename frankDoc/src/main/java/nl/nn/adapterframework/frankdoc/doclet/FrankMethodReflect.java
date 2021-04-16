@@ -119,4 +119,9 @@ class FrankMethodReflect implements FrankMethod {
 			return new FrankAnnotationReflect(rawAnnotation);
 		}
 	}
+
+	@Override
+	public String getJavaDoc() {
+		return null;
+	}
 }

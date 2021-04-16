@@ -165,4 +165,9 @@ class FrankMethodDoclet implements FrankMethod {
 	void addToRepository(Map<MethodDoc, FrankMethod> methodRepository) {
 		methodRepository.put(method, this);
 	}
+
+	@Override
+	public String getJavaDoc() {
+		return method.commentText();
+	}
 }

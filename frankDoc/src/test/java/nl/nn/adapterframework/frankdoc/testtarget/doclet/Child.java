@@ -5,6 +5,10 @@ public class Child extends Parent implements MyInterface {
 	public void setInherited(String value) {
 	}
 
+	/**
+	 * This is the JavaDoc of "packagePrivateMethod".
+	 * @return Some string.
+	 */
 	String packagePrivateMethod() {
 		return null;
 	}
