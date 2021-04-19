@@ -137,7 +137,7 @@ public abstract class ElementChild {
 		boolean isIbisDocHasOrder = false;
 		description = "";
 		try {
-			order = Integer.parseInt(ibisDocValues[0]);
+			Integer.parseInt(ibisDocValues[0]);
 			isIbisDocHasOrder = true;
 		} catch (NumberFormatException e) {
 			isIbisDocHasOrder = false;

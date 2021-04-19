@@ -48,6 +48,7 @@ import nl.nn.adapterframework.frankdoc.doclet.FrankClassRepository;
 import nl.nn.adapterframework.frankdoc.doclet.FrankDocException;
 import nl.nn.adapterframework.frankdoc.doclet.FrankDocletConstants;
 import nl.nn.adapterframework.frankdoc.doclet.FrankMethod;
+import nl.nn.adapterframework.frankdoc.model.ConfigChild.SortNode;
 import nl.nn.adapterframework.util.LogUtil;
 import nl.nn.adapterframework.util.XmlUtils;
 
@@ -194,10 +195,12 @@ public class FrankDocModel {
 		log.trace("Creating attributes for FrankElement [{}]", () -> attributeOwner.getFullName());
 		FrankMethod[] methods = clazz.getDeclaredMethods();
 		Map<String, FrankMethod> enumGettersByAttributeName = getEnumGettersByAttributeName(clazz);
-		Map<String, FrankMethod> setterAttributes = getAttributeToMethodMap(methods, "set");
+		LinkedHashMap<String, FrankMethod> setterAttributes = getAttributeToMethodMap(methods, "set");
 		Map<String, FrankMethod> getterAttributes = getGetterAndIsserAttributes(methods, attributeOwner);
 		List<FrankAttribute> result = new ArrayList<>();
-		for(Entry<String, FrankMethod> entry: setterAttributes.entrySet()) {
+		List<Entry<String, FrankMethod>> entries = new ArrayList<>(setterAttributes.entrySet());
+		for(int order = 0; order < entries.size(); ++order) {
+			Entry<String, FrankMethod> entry = entries.get(order);
 			String attributeName = entry.getKey();
 			log.trace("Attribute [{}]", attributeName);
 			FrankMethod method = entry.getValue();
@@ -205,6 +208,7 @@ public class FrankDocModel {
 				checkForTypeConflict(method, getterAttributes.get(attributeName), attributeOwner);
 			}
 			FrankAttribute attribute = new FrankAttribute(attributeName, attributeOwner);
+			attribute.setOrder(order);
 			attribute.setAttributeType(AttributeType.fromJavaType(method.getParameterTypes()[0].getName()));
 			documentAttribute(attribute, method, attributeOwner);
 			if(enumGettersByAttributeName.containsKey(attributeName)) {
@@ -235,16 +239,14 @@ public class FrankDocModel {
      * The original order of the methods is preserved, which you get when you iterate
      * over the entrySet() of the returned Map.
 	 */
-	static Map<String, FrankMethod> getAttributeToMethodMap(FrankMethod[] methods, String prefix) {
+	static LinkedHashMap<String, FrankMethod> getAttributeToMethodMap(FrankMethod[] methods, String prefix) {
 		List<FrankMethod> methodList = Arrays.asList(methods);
 		methodList = methodList.stream()
 				.filter(FrankMethod::isPublic)
 				.filter(Utils::isAttributeGetterOrSetter)
 				.filter(m -> m.getName().startsWith(prefix) && (m.getName().length() > prefix.length()))
 				.collect(Collectors.toList());
-		// The sort order determines the creation order of AttributeValues instances.
-		Collections.sort(methodList, Comparator.comparing(FrankMethod::getName));
-		Map<String, FrankMethod> result = new LinkedHashMap<>();
+		LinkedHashMap<String, FrankMethod> result = new LinkedHashMap<>();
 		for(FrankMethod method: methodList) {
 			String attributeName = attributeOf(method.getName(), prefix);
 			result.put(attributeName, method);
@@ -320,10 +322,6 @@ public class FrankDocModel {
 							() -> attributeOwner.getFullName(), () -> attribute.getName(), () -> attribute.getDescribingElement().getFullName());
 					if(! attribute.parseIbisDocAnnotation(ibisDoc)) {
 						log.warn("FrankAttribute [{}] of FrankElement [{}] does not have a configured order", () -> attribute.getName(), () -> attributeOwner.getFullName());
-					}
-					if(parsed.hasOrder) {
-						attribute.setOrder(parsed.getOrder());
-						log.trace("Attribute [{}] has order from @IbisDocRef: [{}]", () -> attribute.getName(), () -> attribute.getOrder());
 					}
 					log.trace("Done documenting attribute [{}]", () -> attribute.getName());
 					return;
@@ -423,9 +421,12 @@ public class FrankDocModel {
 	private List<ConfigChild> createConfigChildren(FrankMethod[] methods, FrankElement parent) throws FrankDocException {
 		log.trace("Creating config children of FrankElement [{}]", () -> parent.getFullName());
 		List<ConfigChild> result = new ArrayList<>();
-		for(ConfigChild.SortNode sortNode: createSortNodes(methods, parent)) {
+		List<SortNode> sortNodes = createSortNodes(methods, parent);
+		for(int order = 0; order < sortNodes.size(); ++order) {
+			ConfigChild.SortNode sortNode = sortNodes.get(order);
 			log.trace("Have config child SortNode [{}]", () -> sortNode.getName());
 			ConfigChild configChild = new ConfigChild(parent, sortNode);
+			configChild.setOrder(order);
 			ConfigChildSetterDescriptor configChildDescriptor = configChildDescriptors.get(sortNode.getName());
 			log.trace("Have ConfigChildSetterDescriptor, methodName = [{}], roleName = [{}], mandatory = [{}], allowMultiple = [{}]",
 					() -> configChildDescriptor.getMethodName(), () -> configChildDescriptor.getRoleName(), () -> configChildDescriptor.isMandatory(), () -> configChildDescriptor.isAllowMultiple());
@@ -468,7 +469,6 @@ public class FrankDocModel {
 			ConfigChild.SortNode sortNode = new ConfigChild.SortNode(setter);
 			sortNodes.add(sortNode);
 		}
-		Collections.sort(sortNodes);
 		return sortNodes;
 	}
 

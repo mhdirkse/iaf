@@ -64,7 +64,7 @@ public class FrankDocModelTest {
 	@Parameters(name = "{0}")
 	public static Collection<Object[]> data() {
 		final List<Object[]> result = new ArrayList<>();
-		Arrays.asList(Environment.values()).forEach(v -> result.add(new Object[] {v}));
+		Arrays.asList(Environment.DOCLET).forEach(v -> result.add(new Object[] {v}));
 		return result;
 	}
 
@@ -354,7 +354,8 @@ public class FrankDocModelTest {
 	public void testIbisDockedOnlyDescription() throws FrankDocException {
 		FrankAttribute actual = checkReflectAttributeCreated("ibisDockedOnlyDescription");
 		assertTrue(actual.isDocumented());
-		assertEquals(Integer.MAX_VALUE, actual.getOrder());
+		// Use the order of the Java methods
+		assertEquals(18, actual.getOrder());
 		assertEquals("Description of ibisDockedOnlyDescription", actual.getDescription());
 		assertNull(actual.getDefaultValue());
 		assertFalse(actual.isDeprecated());
@@ -364,7 +365,8 @@ public class FrankDocModelTest {
 	public void testIbisDockedOrderDescription() throws FrankDocException {
 		FrankAttribute actual = checkReflectAttributeCreated("ibisDockedOrderDescription");
 		assertTrue(actual.isDocumented());
-		assertEquals(3, actual.getOrder());
+		// Use the order of the JavaDoc methods.
+		assertEquals(19, actual.getOrder());
 		assertEquals("Description of ibisDockedOrderDescription", actual.getDescription());
 		assertNull(actual.getDefaultValue());
 		assertFalse(actual.isDeprecated());
@@ -374,7 +376,8 @@ public class FrankDocModelTest {
 	public void testIbisDockedDescriptionDefault() throws FrankDocException {
 		FrankAttribute actual = checkReflectAttributeCreated("ibisDockedDescriptionDefault");
 		assertTrue(actual.isDocumented());
-		assertEquals(Integer.MAX_VALUE, actual.getOrder());
+		// Use order of Java methods.
+		assertEquals(20, actual.getOrder());
 		assertEquals("Description of ibisDockedDescriptionDefault", actual.getDescription());
 		assertEquals("Default of ibisDockedDescriptionDefault", actual.getDefaultValue());
 		assertFalse(actual.isDeprecated());
@@ -385,7 +388,8 @@ public class FrankDocModelTest {
 	public void testIbisDockedOrderDescriptionDefault() throws FrankDocException {
 		FrankAttribute actual = checkReflectAttributeCreated("ibisDockedOrderDescriptionDefault");
 		assertTrue(actual.isDocumented());
-		assertEquals(5, actual.getOrder());
+		// Use the order of the Java methods.
+		assertEquals(21, actual.getOrder());
 		assertEquals("Description of ibisDockedOrderDescriptionDefault", actual.getDescription());
 		assertEquals("Default of ibisDockedOrderDescriptionDefault", actual.getDefaultValue());
 		assertFalse(actual.isDeprecated());
@@ -445,7 +449,9 @@ public class FrankDocModelTest {
 	public void testOrderInsideIbisDocRefHasPreferenceOverReferredIbisDocOrder() throws FrankDocException {
 		FrankAttribute actual = checkIbisdocrefInvestigatedFrankAttribute("ibisDocRefClassWithOrderRefersIbisDocOrderDescriptionDefaultInherited");
 		assertTrue(actual.isDocumented());
-		assertEquals(10, actual.getOrder());
+		// We do not get the order anymore from the @IbisDocRef.
+		// We use the order of the methods instead.
+		assertEquals(2, actual.getOrder());
 	}
 
 	@Test

@@ -31,13 +31,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
+import nl.nn.adapterframework.frankdoc.doclet.Environment;
 import nl.nn.adapterframework.frankdoc.doclet.FrankClassRepository;
 import nl.nn.adapterframework.frankdoc.doclet.FrankDocException;
 
 public class FrankDocModelConfigChildrenTest {
-	private static String CONTAINER = "nl.nn.adapterframework.frankdoc.testtarget.children.Container";
-	private static String CONTAINER_DERIVED = "nl.nn.adapterframework.frankdoc.testtarget.children.ContainerDerived";
-	private static String CONTAINER_OTHER = "nl.nn.adapterframework.frankdoc.testtarget.children.ContainerOther";
+	private static final String PACKAGE = "nl.nn.adapterframework.frankdoc.testtarget.children.";
+	private static String CONTAINER = PACKAGE + "Container";
+	private static String CONTAINER_DERIVED = PACKAGE + "ContainerDerived";
+	private static String CONTAINER_OTHER = PACKAGE + "ContainerOther";
 	
 	private FrankDocModel instance;
 	private FrankClassRepository classRepository;
@@ -46,7 +48,7 @@ public class FrankDocModelConfigChildrenTest {
 
 	@Before
 	public void setUp() throws SAXException, IOException, FrankDocException {
-		classRepository = FrankClassRepository.getReflectInstance(CONTAINER);
+		classRepository = Environment.DOCLET.getRepository(PACKAGE);
 		instance = new FrankDocModel(classRepository);
 		instance.createConfigChildDescriptorsFrom("doc/simple-digester-rules.xml");
 		instance.findOrCreateElementType(classRepository.findClass(CONTAINER));
@@ -64,7 +66,10 @@ public class FrankDocModelConfigChildrenTest {
 		assertEquals("Container", actual.getOwningElement().getSimpleName());
 		assertEquals("Child", actual.getElementType().getSimpleName());
 		assertTrue(actual.isDocumented());
-		assertEquals(100, actual.getOrder());
+		// Replacing line
+		// assertEquals(100, actual.getOrder());
+		// Now the order comes from the actual method order. This is the first method.
+		assertEquals(0, actual.getOrder());
 		assertFalse(actual.isAllowMultiple());
 		assertFalse(actual.isDeprecated());
 		assertFalse(actual.isMandatory());
@@ -87,7 +92,8 @@ public class FrankDocModelConfigChildrenTest {
 		assertEquals("Container", actual.getOwningElement().getSimpleName());
 		assertEquals("Child", actual.getElementType().getSimpleName());
 		assertTrue(actual.isDocumented());
-		assertEquals(200, actual.getOrder());
+		// No longer from @IbisDoc annotation, but sequence number of method.
+		assertEquals(1, actual.getOrder());
 		assertFalse(actual.isAllowMultiple());
 		assertTrue(actual.isDeprecated());
 		assertFalse(actual.isMandatory());
@@ -102,7 +108,8 @@ public class FrankDocModelConfigChildrenTest {
 		assertEquals("Container", actual.getOwningElement().getSimpleName());
 		assertEquals("InheritedChild", actual.getElementType().getSimpleName());
 		assertFalse(actual.isDocumented());
-		assertEquals(50, actual.getOrder());
+		// Use the order in which the method appears.
+		assertEquals(2, actual.getOrder());
 		assertTrue(actual.isAllowMultiple());
 		assertFalse(actual.isDeprecated());
 		assertFalse(actual.isMandatory());
@@ -119,7 +126,8 @@ public class FrankDocModelConfigChildrenTest {
 		assertEquals("Container", actual.getOwningElement().getSimpleName());
 		assertEquals("InheritedChildDocOnDerived", actual.getElementType().getSimpleName());
 		assertTrue(actual.isDocumented());
-		assertEquals(70, actual.getOrder());
+		// Use the order of the Java methods.
+		assertEquals(3, actual.getOrder());
 		assertFalse(actual.isAllowMultiple());
 		assertFalse(actual.isMandatory());
 		assertFalse(actual.isDeprecated());
@@ -135,7 +143,8 @@ public class FrankDocModelConfigChildrenTest {
 		assertEquals("Container", actual.getOwningElement().getSimpleName());
 		assertEquals("InheritedChildDocWithOrderOverride", actual.getElementType().getSimpleName());
 		assertTrue(actual.isDocumented());
-		assertEquals(10, actual.getOrder());
+		// Use order of Java methods.
+		assertEquals(6, actual.getOrder());
 		assertFalse(actual.isDeprecated());
 		assertEquals("ContainerParent", actual.getOverriddenFrom().getSimpleName());
 		assertTrue(actual.isTechnicalOverride());
@@ -183,7 +192,8 @@ public class FrankDocModelConfigChildrenTest {
 	@Test
 	public void whenConfigChildOverriddenNotDocumentedThenChildCreatedButNotSelected() {
 		ConfigChild actual = selectChild("roleNameInheritedChildNonSelected");
-		assertEquals(120, actual.getOrder());
+		// Use order of Java methods.
+		assertEquals(7, actual.getOrder());
 		assertFalse(actual.isDocumented());
 		assertFalse(actual.isDeprecated());
 		assertNotNull(actual.getOverriddenFrom());
@@ -197,7 +207,8 @@ public class FrankDocModelConfigChildrenTest {
 		assertEquals("Container", actual.getOwningElement().getSimpleName());
 		assertEquals("ChildOverriddenOnlyParentAnnotated", actual.getElementType().getSimpleName());
 		assertFalse(actual.isDocumented());
-		assertEquals(110, actual.getOrder());
+		// Use order of Java methods.
+		assertEquals(8, actual.getOrder());
 		assertFalse(actual.isDeprecated());
 		assertEquals("ContainerParent", actual.getOverriddenFrom().getSimpleName());
 		// Not selected because deprecated
@@ -206,8 +217,9 @@ public class FrankDocModelConfigChildrenTest {
 
 	@Test
 	public void whenInheritedConfigChildNotDeprecatedInheritedFromDeprecatedThenNotDeprecated() throws Exception {
+		// Selecting now on the order of the Java methods, no longer the @IbisDoc order.
 		ConfigChild theConfigChild = instance.findOrCreateFrankElement(CONTAINER_OTHER)
-				.getConfigChildren(c -> ((ConfigChild)c).getOrder() == 110).get(0);
+				.getConfigChildren(c -> ((ConfigChild)c).getOrder() == 0).get(0);
 		assertFalse(theConfigChild.isDeprecated());
 	}
 }

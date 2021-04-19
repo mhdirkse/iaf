@@ -16,7 +16,7 @@ public enum Environment {
 		this.delegate = delegate;
 	}
 
-	FrankClassRepository getRepository(String packageName) {
+	public FrankClassRepository getRepository(String packageName) {
 		return delegate.getRepository(packageName);
 	}
 
