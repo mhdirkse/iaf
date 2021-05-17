@@ -97,7 +97,7 @@ public class FrankDocJsonFactory {
 
 	private JsonObject getElement(FrankElement frankElement) throws JsonException {
 		JsonObjectBuilder result = bf.createObjectBuilder();
-		result.add("name", frankElement.getSimpleName());
+		result.add("name", getJsonElementName(frankElement));
 		result.add("fullName", frankElement.getFullName());
 		if(frankElement.isAbstract()) {
 			result.add("abstract", frankElement.isAbstract());
@@ -119,6 +119,15 @@ public class FrankDocJsonFactory {
 			result.add("children", configChildren);
 		}
 		return result.build();
+	}
+
+	private static String getJsonElementName(FrankElement frankElement) {
+		List<String> xmlElementNames = frankElement.getXmlElementNames();
+		if(xmlElementNames.size() == 1) {
+			return xmlElementNames.get(0);
+		} else {
+			return frankElement.getSimpleName();
+		}
 	}
 
 	private static String getParentOrNull(FrankElement frankElement) {

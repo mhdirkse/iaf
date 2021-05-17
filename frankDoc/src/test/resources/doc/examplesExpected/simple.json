@@ -27,7 +27,7 @@
       }]
     },
     {
-      "name": "DescribedPossibleIChild",
+      "name": "DescribedPossibleIRoleNameIChild",
       "fullName": "nl.nn.adapterframework.frankdoc.testtarget.examples.simple.DescribedPossibleIChild",
       "descriptionHeader": "This is the header of the JavaDoc of \\\"DescribedPossibleIChild\\\".",
       "elementNames": ["DescribedPossibleIRoleNameIChild"],
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "name": "NotDescribedPossibleIChild",
+      "name": "NotDescribedPossibleIRoleNameIChild",
       "fullName": "nl.nn.adapterframework.frankdoc.testtarget.examples.simple.NotDescribedPossibleIChild",
       "elementNames": ["NotDescribedPossibleIRoleNameIChild"],
       "attributes": [
@@ -95,7 +95,7 @@
       ]
     },
     {
-      "name": "TChild",
+      "name": "RoleNameTChild",
       "fullName": "nl.nn.adapterframework.frankdoc.testtarget.examples.simple.TChild",
       "descriptionHeader": "This is the header of the JavaDoc of \\\"TChild\\\".",
       "elementNames": ["RoleNameTChild"]

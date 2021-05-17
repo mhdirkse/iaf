@@ -38,7 +38,7 @@
             ]
         },
         {
-            "name":"TChild",
+            "name":"RoleNameTChild",
             "fullName":"nl.nn.adapterframework.frankdoc.testtarget.examples.deprecated.TChild",
             "deprecated":true,
             "elementNames":[
