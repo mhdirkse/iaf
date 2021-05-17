@@ -18,6 +18,7 @@ package nl.nn.adapterframework.frankdoc.doclet;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.sun.javadoc.ClassDoc;
@@ -59,4 +60,6 @@ public interface FrankClassRepository {
 			return s;
 		}
 	}
+
+	List<FrankClass> getClassesAnnotatedWith(String annotationName) throws FrankDocException;
 }

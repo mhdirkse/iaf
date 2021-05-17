@@ -106,4 +106,11 @@ class FrankClassRepositoryDoclet implements FrankClassRepository {
 	public FrankClass findClass(String fullName) throws FrankDocException {
 		return classesByName.get(fullName);
 	}
+
+	@Override
+	public List<FrankClass> getClassesAnnotatedWith(String annotationName) {
+		return classesByName.values().stream()
+				.filter(c -> c.getAnnotation(annotationName) != null)
+				.collect(Collectors.toList());
+	}
 }
