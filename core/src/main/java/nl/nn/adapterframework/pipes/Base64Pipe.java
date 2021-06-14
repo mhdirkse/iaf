@@ -27,6 +27,8 @@ import org.apache.commons.codec.binary.Base64OutputStream;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.commons.lang3.StringUtils;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.configuration.ConfigurationWarning;
 import nl.nn.adapterframework.configuration.ConfigurationWarnings;
@@ -52,7 +54,13 @@ import nl.nn.adapterframework.util.StreamUtil;
 public class Base64Pipe extends StreamingPipe {
 
 	private Direction direction = Direction.ENCODE;
-	private int lineLength = 76;
+	
+	/**
+	 * (Only used when direction=encode) Each line of encoded data will be at most of the given length (rounded down to nearest multiple of 4). If linelength &lt;= 0, then the output will not be divided into lines
+	 * 
+	 * @ff.default 76
+	 */
+	private @Getter @Setter int lineLength = 76;
 	private String lineSeparator = "auto";
 	private String charset = null;
 	private OutputTypes outputType = null;
@@ -189,13 +197,5 @@ public class Base64Pipe extends StreamingPipe {
 	}
 	public String getLineSeparator() {
 		return lineSeparator;
-	}
-
-	@IbisDoc({"5", " (Only used when direction=encode) Each line of encoded data will be at most of the given length (rounded down to nearest multiple of 4). If linelength &lt;= 0, then the output will not be divided into lines", "76"})
-	public void setLineLength(int lineLength) {
-		this.lineLength = lineLength;
-	}
-	public int getLineLength() {
-		return lineLength;
 	}
 }
